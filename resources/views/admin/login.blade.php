@@ -34,7 +34,7 @@
                 <label for="username" class="block text-sm font-medium text-gray-700 mb-2">Username</label>
                 <input type="text" id="username" name="username" value="{{ old('username') }}"
                     class="w-full px-4 py-3 border rounded focus:ring-2 focus:ring-gray-500 focus:border-transparent outline-none transition @error('username') border-red-500 @enderror"
-                    placeholder="Masukkan username admin" required>
+                    placeholder="Masukkan username" required>
                 @error('username')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
@@ -52,7 +52,7 @@
 
             <button type="submit"
                 class="w-full bg-gray-700 text-white py-3 rounded font-semibold hover:bg-gray-800 transition duration-200">
-                Login sebagai Admin
+                Login
             </button>
         </form>
 

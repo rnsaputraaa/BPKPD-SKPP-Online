@@ -18,7 +18,7 @@ Route::middleware('guest')->group(function () {
     Route::post('/admin/login', [AdminController::class, 'login']);
 });
 
-Route::middleware(['auth', 'prevent-back-history'])->group(function () {
+Route::middleware(['auth', 'user', 'prevent-back-history'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/dashboard', [SkppController::class, 'dashboard'])->name('dashboard');
     Route::get('/skpp', [SkppController::class, 'index'])->name('skpp.index');

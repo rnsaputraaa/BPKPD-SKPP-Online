@@ -20,11 +20,8 @@
         <aside class="w-64 bg-gray-800 text-white flex flex-col shadow-lg">
             <div class="p-6 bg-gray-900 border-b border-gray-700">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-gray-700 rounded flex items-center justify-center">
-                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                                clip-rule="evenodd" />
-                        </svg>
+                    <div class="w-10 h-10 flex items-center justify-center">
+                        <img src="{{ asset('img/logo.png') }}" alt="Logo" class="w-10 h-10 object-contain">
                     </div>
                     <div>
                         <h1 class="text-xl font-bold">Admin Panel</h1>
