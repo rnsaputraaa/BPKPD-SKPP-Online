@@ -41,6 +41,29 @@
         </div>
     </div>
 
+    @if ($skpp->status == 'ditolak' && $skpp->alasan_penolakan)
+        <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded mb-6 shadow-sm">
+            <div class="flex items-start">
+                <svg class="w-6 h-6 text-red-500 mr-3 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                        clip-rule="evenodd" />
+                </svg>
+                <div>
+                    <h3 class="font-bold text-red-800 text-lg mb-2">Alasan Penolakan</h3>
+                    <p class="text-red-700">{{ $skpp->alasan_penolakan }}</p>
+                    @if ($skpp->approved_by && $skpp->approved_at)
+                        <p class="text-sm text-red-600 mt-2">
+                            Ditolak oleh: <span
+                                class="font-semibold">{{ optional($skpp->approver)->nama ?? 'Admin' }}</span>
+                            pada {{ $skpp->approved_at->locale('id')->translatedFormat('d F Y') }}
+                        </p>
+                    @endif
+                </div>
+            </div>
+        </div>
+    @endif
+
     <div class="bg-white rounded shadow p-6 mb-6">
         <h2 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Data Pegawai</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -54,7 +77,8 @@
             </div>
             <div>
                 <p class="text-sm text-gray-600">Tanggal Lahir</p>
-                <p class="font-semibold text-gray-800">{{ $skpp->tanggal_lahir->format('d F Y') }}</p>
+                <p class="font-semibold text-gray-800">{{ $skpp->tanggal_lahir->locale('id')->translatedFormat('d F Y') }}
+                </p>
             </div>
             <div>
                 <p class="text-sm text-gray-600">Golongan</p>
@@ -84,14 +108,15 @@
             </div>
             <div>
                 <p class="text-sm text-gray-600">Tanggal SK</p>
-                <p class="font-semibold text-gray-800">{{ $skpp->sk_tanggal->format('d F Y') }}</p>
+                <p class="font-semibold text-gray-800">{{ $skpp->sk_tanggal->locale('id')->translatedFormat('d F Y') }}</p>
             </div>
 
             @if ($skpp->tipe == 'pensiun')
                 <div>
                     <p class="text-sm text-gray-600">Tanggal Mulai</p>
                     <p class="font-semibold text-gray-800">
-                        {{ $skpp->tanggal_mulai ? $skpp->tanggal_mulai->format('d F Y') : '-' }}</p>
+                        {{ $skpp->tanggal_mulai ? $skpp->tanggal_mulai->locale('id')->translatedFormat('d F Y') : '-' }}
+                    </p>
                 </div>
                 <div>
                     <p class="text-sm text-gray-600">Pensiun Pokok</p>
@@ -101,13 +126,15 @@
                 <div>
                     <p class="text-sm text-gray-600">Tanggal Meninggal</p>
                     <p class="font-semibold text-gray-800">
-                        {{ $skpp->tanggal_kematian ? $skpp->tanggal_kematian->format('d F Y') : '-' }}</p>
+                        {{ $skpp->tanggal_kematian ? $skpp->tanggal_kematian->locale('id')->translatedFormat('d F Y') : '-' }}
+                    </p>
                 </div>
             @elseif($skpp->tipe == 'mutasi')
                 <div>
                     <p class="text-sm text-gray-600">Tanggal Mulai</p>
                     <p class="font-semibold text-gray-800">
-                        {{ $skpp->tanggal_mulai ? $skpp->tanggal_mulai->format('d F Y') : '-' }}</p>
+                        {{ $skpp->tanggal_mulai ? $skpp->tanggal_mulai->locale('id')->translatedFormat('d F Y') : '-' }}
+                    </p>
                 </div>
                 <div>
                     <p class="text-sm text-gray-600">Pindah Ke</p>

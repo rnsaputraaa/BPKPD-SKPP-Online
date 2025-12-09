@@ -14,8 +14,12 @@
     @vite('resources/css/app.css')
 </head>
 
-<body class="bg-linear-to-br from-gray-700 to-gray-900 min-h-screen flex items-center justify-center p-4">
-    <div class="bg-white rounded shadow-2xl w-full max-w-md p-8">
+<body class="bg-gray-700 min-h-screen flex items-center justify-center p-4">
+    <div
+        class="absolute inset-0 opacity-20 pointer-events-none z-0 bg-[linear-gradient(#ffffff33_1px,transparent_1px),linear-gradient(90deg,#ffffff33_1px,transparent_1px)] bg-size-[50px_50px]">
+    </div>
+
+    <div class="bg-white rounded shadow-2xl w-full max-w-md p-8 relative z-10">
         <div class="text-center mb-8">
             <div class="inline-block p-4 bg-gray-100 rounded-full mb-4">
                 <svg class="w-12 h-12 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -51,7 +55,7 @@
             </div>
 
             <button type="submit"
-                class="w-full bg-gray-700 text-white py-3 rounded font-semibold hover:bg-gray-800 transition duration-200">
+                class="w-full bg-gray-600 text-white py-3 rounded font-semibold hover:bg-gray-700 transition duration-200">
                 Login
             </button>
         </form>

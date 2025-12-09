@@ -9,11 +9,16 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use PhpOffice\PhpWord\TemplateProcessor;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class AdminController extends Controller
 {
     public function showLogin()
     {
+        if (Auth::check() && Auth::user()->role === 'admin') {
+            return redirect()->route('admin.dashboard');
+        }
         return view('admin.login');
     }
 
@@ -31,7 +36,8 @@ class AdminController extends Controller
         if ($user && Hash::check($credentials['password'], $user->password)) {
             Auth::login($user);
             $request->session()->regenerate();
-            return redirect()->intended('/admin/dashboard');
+
+            return redirect()->route('admin.dashboard');
         }
 
         return back()->withErrors([
@@ -43,39 +49,99 @@ class AdminController extends Controller
     {
         $totalUsers = User::where('role', 'user')->count();
         $totalSkpp = Skpp::count();
+        $totalPending = Skpp::where('status', 'pending')->count();
         $totalDiproses = Skpp::where('status', 'diproses')->count();
         $totalDisetujui = Skpp::where('status', 'disetujui')->count();
         $totalDitolak = Skpp::where('status', 'ditolak')->count();
 
+        $skppByType = Skpp::select('tipe', DB::raw('count(*) as total'))
+            ->groupBy('tipe')
+            ->get()
+            ->pluck('total', 'tipe');
+
         $recentSkpp = Skpp::with('user')
             ->latest()
-            ->take(10)
+            ->take(3)
+            ->get();
+
+        $monthlyStats = Skpp::select(
+            DB::raw('MONTH(created_at) as month'),
+            DB::raw('YEAR(created_at) as year'),
+            DB::raw('count(*) as total')
+        )
+            ->where('created_at', '>=', now()->subMonths(6))
+            ->groupBy('year', 'month')
+            ->orderBy('year', 'desc')
+            ->orderBy('month', 'desc')
             ->get();
 
         return view('admin.dashboard', compact(
             'totalUsers',
             'totalSkpp',
+            'totalPending',
             'totalDiproses',
             'totalDisetujui',
             'totalDitolak',
-            'recentSkpp'
+            'recentSkpp',
+            'skppByType',
+            'monthlyStats'
         ));
     }
 
-    public function skppList()
+    public function skppList(Request $request)
     {
-        $skpps = Skpp::with('user')->latest()->get();
+        $query = Skpp::with('user');
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('tipe')) {
+            $query->where('tipe', $request->tipe);
+        }
+
+        // Pencarian
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('nama', 'like', "%{$search}%")
+                    ->orWhere('nip', 'like', "%{$search}%")
+                    ->orWhere('nomor_urut', 'like', "%{$search}%");
+            });
+        }
+
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortOrder = $request->get('sort_order', 'desc');
+        $query->orderBy($sortBy, $sortOrder);
+
+        $skpps = $query->paginate(15)->withQueryString();
+
         return view('admin.skpp.index', compact('skpps'));
     }
 
     public function skppShow(Skpp $skpp)
     {
         $skpp->load('user');
+
+        if ($skpp->approved_by) {
+            try {
+                $skpp->load('approver');
+            } catch (\Exception $e) {
+                Log::warning('Approver not found for SKPP: ' . $skpp->id);
+            }
+        }
+
         return view('admin.skpp.show', compact('skpp'));
     }
 
     public function approve(Skpp $skpp)
     {
+        if ($skpp->status === 'disetujui') {
+            return redirect()
+                ->route('admin.skpp.show', $skpp)
+                ->with('warning', 'SKPP sudah disetujui sebelumnya!');
+        }
+
         $skpp->update([
             'status' => 'disetujui',
             'approved_at' => now(),
@@ -90,23 +156,35 @@ class AdminController extends Controller
 
     public function reject(Request $request, Skpp $skpp)
     {
-        $request->validate([
-            'alasan_penolakan' => 'required|string|min:10',
+        $validated = $request->validate([
+            'alasan_penolakan' => 'required|string',
         ], [
             'alasan_penolakan.required' => 'Alasan penolakan wajib diisi',
-            'alasan_penolakan.min' => 'Alasan penolakan minimal 10 karakter',
         ]);
 
-        $skpp->update([
-            'status' => 'ditolak',
-            'approved_at' => now(),
-            'approved_by' => Auth::id(),
-            'alasan_penolakan' => $request->alasan_penolakan,
-        ]);
+        if ($skpp->status === 'ditolak') {
+            return redirect()
+                ->route('admin.skpp.show', $skpp)
+                ->with('warning', 'SKPP sudah ditolak sebelumnya!');
+        }
 
-        return redirect()
-            ->route('admin.skpp.show', $skpp)
-            ->with('success', 'SKPP telah ditolak!');
+        try {
+            $skpp->update([
+                'status' => 'ditolak',
+                'approved_at' => now(),
+                'approved_by' => Auth::id(),
+                'alasan_penolakan' => $validated['alasan_penolakan'],
+            ]);
+
+            return redirect()
+                ->route('admin.skpp.show', $skpp)
+                ->with('success', 'SKPP telah ditolak!');
+        } catch (\Exception $e) {
+            Log::error('Error rejecting SKPP: ' . $e->getMessage());
+            return redirect()
+                ->route('admin.skpp.show', $skpp)
+                ->with('error', 'Gagal menolak SKPP: ' . $e->getMessage());
+        }
     }
 
     public function print(Skpp $skpp)
@@ -117,103 +195,161 @@ class AdminController extends Controller
                 ->with('error', 'SKPP harus disetujui terlebih dahulu sebelum dapat dicetak!');
         }
 
-        $templateFile = match ($skpp->tipe) {
-            'pensiun' => storage_path('app/templates/TEMPLATE SKPP PENSIUN.docx'),
-            'meninggal_dunia' => storage_path('app/templates/TEMPLATE SKPP MD.docx'),
-            'mutasi' => storage_path('app/templates/TEMPLATE SKPP MUTASI.docx'),
-        };
+        try {
+            $templateFile = match ($skpp->tipe) {
+                'pensiun' => storage_path('app/templates/TEMPLATE SKPP PENSIUN.docx'),
+                'meninggal_dunia' => storage_path('app/templates/TEMPLATE SKPP MD.docx'),
+                'mutasi' => storage_path('app/templates/TEMPLATE SKPP MUTASI.docx'),
+                default => null,
+            };
 
-        $template = new TemplateProcessor($templateFile);
+            if (!$templateFile) {
+                throw new \Exception('Tipe SKPP tidak valid: ' . $skpp->tipe);
+            }
 
-        $template->setValue('nomor_urut', str_pad($skpp->nomor_urut, 3, '0', STR_PAD_LEFT));
-        $template->setValue('kode_wilayah', $skpp->kode_wilayah);
-        $template->setValue('tahun_surat', $skpp->tahun_surat);
-        $template->setValue('nip', $skpp->nip);
-        $template->setValue('nama', $skpp->nama);
-        $template->setValue('taggal_lahir', $skpp->tanggal_lahir->format('d-m-Y'));
-        $template->setValue('golongan', $skpp->golongan);
-        $template->setValue('jabatan', $skpp->jabatan);
-        $template->setValue('unit_kerja', $skpp->unit_kerja);
-        $template->setValue('sk_dari', $skpp->sk_dari);
-        $template->setValue('sk_nomor', $skpp->sk_nomor);
-        $template->setValue('sk_tanggal', Carbon::parse($skpp->sk_tanggal)->format('d-m-Y'));
+            if (!file_exists($templateFile)) {
+                throw new \Exception('Template file tidak ditemukan. Pastikan file template ada di: ' . $templateFile);
+            }
 
-        if ($skpp->tipe === 'pensiun') {
-            $template->setValue('tanggal_mulai', $skpp->tanggal_mulai ? Carbon::parse($skpp->tanggal_mulai)->format('d-m-Y') : '-');
-            $template->setValue('pensiun_pokok', number_format($skpp->pensiun_pokok, 0, ',', '.'));
-        } elseif ($skpp->tipe === 'meninggal_dunia') {
-            $template->setValue('tanggal_kematian', $skpp->tanggal_kematian ? Carbon::parse($skpp->tanggal_kematian)->format('d-m-Y') : '-');
-        } elseif ($skpp->tipe === 'mutasi') {
-            $template->setValue('tanggal_mulai', $skpp->tanggal_mulai ? Carbon::parse($skpp->tanggal_mulai)->format('d-m-Y') : '-');
-            $template->setValue('pindah_ke', $skpp->pindah_ke);
+            if (!class_exists('PhpOffice\PhpWord\TemplateProcessor')) {
+                throw new \Exception('PhpWord library tidak terinstall. Jalankan: composer require phpoffice/phpword');
+            }
+
+            $template = new TemplateProcessor($templateFile);
+
+            $template->setValue('nomor_urut', str_pad($skpp->nomor_urut, 3, '0', STR_PAD_LEFT));
+            $template->setValue('kode_wilayah', $skpp->kode_wilayah ?? '');
+            $template->setValue('tahun_surat', $skpp->tahun_surat ?? '');
+            $template->setValue('nip', $skpp->nip ?? '');
+            $template->setValue('nama', $skpp->nama ?? '');
+            $template->setValue('taggal_lahir', $skpp->tanggal_lahir ? $skpp->tanggal_lahir->format('d-m-Y') : '-');
+            $template->setValue('golongan', $skpp->golongan ?? '');
+            $template->setValue('jabatan', $skpp->jabatan ?? '');
+            $template->setValue('unit_kerja', $skpp->unit_kerja ?? '');
+            $template->setValue('sk_dari', $skpp->sk_dari ?? '');
+            $template->setValue('sk_nomor', $skpp->sk_nomor ?? '');
+            $template->setValue('sk_tanggal', $skpp->sk_tanggal ? Carbon::parse($skpp->sk_tanggal)->format('d-m-Y') : '-');
+
+            if ($skpp->tipe === 'pensiun') {
+                $template->setValue('tanggal_mulai', $skpp->tanggal_mulai ? Carbon::parse($skpp->tanggal_mulai)->format('d-m-Y') : '-');
+                $template->setValue('pensiun_pokok', number_format($skpp->pensiun_pokok ?? 0, 0, ',', '.'));
+            } elseif ($skpp->tipe === 'meninggal_dunia') {
+                $template->setValue('tanggal_kematian', $skpp->tanggal_kematian ? Carbon::parse($skpp->tanggal_kematian)->format('d-m-Y') : '-');
+            } elseif ($skpp->tipe === 'mutasi') {
+                $template->setValue('tanggal_mulai', $skpp->tanggal_mulai ? Carbon::parse($skpp->tanggal_mulai)->format('d-m-Y') : '-');
+                $template->setValue('pindah_ke', $skpp->pindah_ke ?? '-');
+            }
+
+            $template->setValue('gaji_sampai_bulan', strtoupper($skpp->gaji_sampai_bulan ?? ''));
+
+            $fields = [
+                'gaji_pokok',
+                'tun_pasangan',
+                'tun_anak',
+                'tun_pp',
+                'tun_struktural',
+                'tun_fungsional',
+                'tun_beras',
+                'tun_umum',
+                'tun_fk',
+                'tun_mahal',
+                'tun_terpencil',
+                'tun_bpjs',
+                'tun_pajak',
+                'tun_jkk',
+                'tun_jkm',
+                'tun_tapera',
+                'pembulatan',
+                'iwp_1',
+                'iwp_8',
+                'pot_bpjs',
+                'pot_pajak',
+                'pot_bulog',
+                'pot_taperum',
+                'iuran',
+                'pot_sewa',
+                'pot_hutang',
+                'pot_jkk',
+                'pot_jkm',
+                'pot_tapera',
+                'pot_tapera_peg'
+            ];
+
+            foreach ($fields as $field) {
+                $value = $skpp->$field ?? 0;
+                $template->setValue($field, number_format($value, 0, ',', '.'));
+            }
+
+            $template->setValue('jumlah_kotor', number_format($skpp->jumlah_kotor ?? 0, 0, ',', '.'));
+            $template->setValue('jumlah_pot', number_format($skpp->jumlah_pot ?? 0, 0, ',', '.'));
+            $template->setValue('jumlah_bersih', number_format($skpp->jumlah_bersih ?? 0, 0, ',', '.'));
+
+            for ($i = 1; $i <= 5; $i++) {
+                if (isset($skpp->keluarga[$i - 1])) {
+                    $kel = $skpp->keluarga[$i - 1];
+                    $template->setValue("nama_keluarga{$i}", $kel['nama'] ?? '');
+                    $template->setValue("lahir{$i}", $kel['tanggal_lahir'] ?? '');
+                    $template->setValue("ket{$i}", $kel['keterangan'] ?? '');
+                } else {
+                    $template->setValue("nama_keluarga{$i}", '');
+                    $template->setValue("lahir{$i}", '');
+                    $template->setValue("ket{$i}", '');
+                }
+            }
+
+            $template->setValue('jum_hut', $skpp->jum_hut ? number_format($skpp->jum_hut, 0, ',', '.') : '0');
+            $template->setValue('ket_hut', $skpp->ket_hut ?? '');
+            $template->setValue('tanggal_surat', $skpp->tanggal_surat ? Carbon::parse($skpp->tanggal_surat)->isoFormat('D MMMM Y') : '-');
+
+            $fileName = "SKPP_" . preg_replace('/[^A-Za-z0-9_\-]/', '_', $skpp->nama) . "_{$skpp->nomor_urut}_" . time() . ".docx";
+            $filePath = storage_path("app/public/{$fileName}");
+
+            $directory = storage_path('app/public');
+            if (!file_exists($directory)) {
+                mkdir($directory, 0755, true);
+            }
+
+            $template->saveAs($filePath);
+
+            if (!file_exists($filePath)) {
+                throw new \Exception('Gagal membuat file DOCX. Periksa permission folder storage/app/public');
+            }
+
+            return response()->download($filePath, $fileName)->deleteFileAfterSend(true);
+        } catch (\Exception $e) {
+            Log::error('Error printing SKPP: ' . $e->getMessage(), [
+                'skpp_id' => $skpp->id,
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return redirect()
+                ->route('admin.skpp.show', $skpp)
+                ->with('error', 'Gagal mencetak SKPP: ' . $e->getMessage());
         }
+    }
 
-        $template->setValue('gaji_sampai_bulan', strtoupper($skpp->gaji_sampai_bulan));
+    public function userManagement()
+    {
+        $users = User::where('role', 'user')
+            ->withCount('skpps')
+            ->latest()
+            ->paginate(20);
 
-        $fields = [
-            'gaji_pokok',
-            'tun_pasangan',
-            'tun_anak',
-            'tun_pp',
-            'tun_struktural',
-            'tun_fungsional',
-            'tun_beras',
-            'tun_umum',
-            'tun_fk',
-            'tun_mahal',
-            'tun_terpencil',
-            'tun_bpjs',
-            'tun_pajak',
-            'tun_jkk',
-            'tun_jkm',
-            'tun_tapera',
-            'pembulatan',
-            'iwp_1',
-            'iwp_8',
-            'pot_bpjs',
-            'pot_pajak',
-            'pot_bulog',
-            'pot_taperum',
-            'iuran',
-            'pot_sewa',
-            'pot_hutang',
-            'pot_jkk',
-            'pot_jkm',
-            'pot_tapera',
-            'pot_tapera_peg'
+        return view('admin.users.index', compact('users'));
+    }
+
+    public function reports()
+    {
+        $statistics = [
+            'total_skpp' => Skpp::count(),
+            'approved_this_month' => Skpp::where('status', 'disetujui')
+                ->whereMonth('approved_at', now()->month)
+                ->count(),
+            'pending_count' => Skpp::where('status', 'pending')->count(),
+            'rejected_count' => Skpp::where('status', 'ditolak')->count(),
         ];
 
-        foreach ($fields as $field) {
-            $template->setValue($field, number_format($skpp->$field, 0, ',', '.'));
-        }
-
-        $template->setValue('jumlah_kotor', number_format($skpp->jumlah_kotor, 0, ',', '.'));
-        $template->setValue('jumlah_pot', number_format($skpp->jumlah_pot, 0, ',', '.'));
-        $template->setValue('jumlah_bersih', number_format($skpp->jumlah_bersih, 0, ',', '.'));
-
-        for ($i = 1; $i <= 5; $i++) {
-            if (isset($skpp->keluarga[$i - 1])) {
-                $kel = $skpp->keluarga[$i - 1];
-                $template->setValue("nama_keluarga{$i}", $kel['nama']);
-                $template->setValue("lahir{$i}", $kel['tanggal_lahir']);
-                $template->setValue("ket{$i}", $kel['keterangan']);
-            } else {
-                $template->setValue("nama_keluarga{$i}", '');
-                $template->setValue("lahir{$i}", '');
-                $template->setValue("ket{$i}", '');
-            }
-        }
-
-        $template->setValue('jum_hut', $skpp->jum_hut ? number_format($skpp->jum_hut, 0, ',', '.') : '0');
-        $template->setValue('ket_hut', $skpp->ket_hut ?? '');
-        $template->setValue('tanggal_surat', Carbon::parse($skpp->tanggal_surat)->isoFormat('D MMMM Y'));
-
-        $fileName = "SKPP_{$skpp->nama}_{$skpp->nomor_urut}.docx";
-        $template->saveAs(storage_path("app/public/{$fileName}"));
-
-        return response()
-            ->download(storage_path("app/public/{$fileName}"))
-            ->deleteFileAfterSend();
+        return view('admin.reports', compact('statistics'));
     }
 
     public function logout(Request $request)

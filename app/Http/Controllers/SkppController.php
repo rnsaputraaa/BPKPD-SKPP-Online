@@ -30,7 +30,7 @@ class SkppController extends Controller
     {
         if (!$request->tipe) {
             return redirect()->back()
-                ->withErrors(['tipe' => 'Silakan pilih tipe SKPP terlebih dahulu.'])
+                ->withErrors(['tipe' => 'Pilih tipe SKPP terlebih dahulu.'])
                 ->withInput();
         }
 
@@ -167,27 +167,26 @@ class SkppController extends Controller
         $template->setValue('tahun_surat', $skpp->tahun_surat);
         $template->setValue('nip', $skpp->nip);
         $template->setValue('nama', $skpp->nama);
-        $template->setValue('taggal_lahir', $skpp->tanggal_lahir->format('d-m-Y'));
+        $template->setValue('taggal_lahir', $skpp->tanggal_lahir->locale('id')->translatedFormat('d F Y'));
         $template->setValue('golongan', $skpp->golongan);
         $template->setValue('jabatan', $skpp->jabatan);
         $template->setValue('unit_kerja', $skpp->unit_kerja);
-        $template->setValue('sk_dari', $skpp->sk_dari);
+        $template->setValue('sk_dari', strtoupper($skpp->sk_dari));
         $template->setValue('sk_nomor', $skpp->sk_nomor);
-        $template->setValue('sk_tanggal', Carbon::parse($skpp->sk_tanggal)->format('d-m-Y'));
+        $template->setValue('sk_tanggal', Carbon::parse($skpp->sk_tanggal)->locale('id')->translatedFormat('d F Y'));
 
         if ($skpp->tipe === 'pensiun') {
-            $template->setValue('tanggal_mulai', $skpp->tanggal_mulai ? Carbon::parse($skpp->tanggal_mulai)->format('d-m-Y') : '-');
+            $template->setValue('tanggal_mulai', $skpp->tanggal_mulai ? Carbon::parse($skpp->tanggal_mulai)->locale('id')->translatedFormat('d F Y') : '-');
             $template->setValue('pensiun_pokok', number_format($skpp->pensiun_pokok, 0, ',', '.'));
         } elseif ($skpp->tipe === 'meninggal_dunia') {
-            $template->setValue('tanggal_kematian', $skpp->tanggal_kematian ? Carbon::parse($skpp->tanggal_kematian)->format('d-m-Y') : '-');
+            $template->setValue('tanggal_kematian', $skpp->tanggal_kematian ? Carbon::parse($skpp->tanggal_kematian)->locale('id')->translatedFormat('d F Y') : '-');
         } elseif ($skpp->tipe === 'mutasi') {
-            $template->setValue('tanggal_mulai', $skpp->tanggal_mulai ? Carbon::parse($skpp->tanggal_mulai)->format('d-m-Y') : '-');
+            $template->setValue('tanggal_mulai', $skpp->tanggal_mulai ? Carbon::parse($skpp->tanggal_mulai)->locale('id')->translatedFormat('d F Y') : '-');
             $template->setValue('pindah_ke', $skpp->pindah_ke);
         }
 
         $template->setValue('gaji_sampai_bulan', strtoupper($skpp->gaji_sampai_bulan));
 
-        // Penerimaan & Potongan
         $fields = [
             'gaji_pokok',
             'tun_pasangan',

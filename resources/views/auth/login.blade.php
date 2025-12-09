@@ -85,7 +85,7 @@
             </div>
 
             <a href="{{ route('admin.login') }}"
-                class="w-full flex items-center justify-center gap-2 py-3 border border-green-600 text-green-700 font-semibold rounded hover:bg-green-100 transition shadow-sm">
+                class="w-full flex items-center justify-center gap-2 py-3 border border-gray-600 text-gray-700 font-semibold rounded hover:bg-gray-300 transition shadow-sm">
                 Admin
             </a>
         </div>

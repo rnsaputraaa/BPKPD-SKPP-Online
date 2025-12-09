@@ -66,7 +66,10 @@ class Skpp extends Model
         'jum_hut',
         'ket_hut',
         'ttd_pengirim',
-        'status'
+        'status',
+        'approved_by',
+        'approved_at',
+        'alasan_penolakan'
     ];
 
     protected $casts = [
@@ -76,13 +79,28 @@ class Skpp extends Model
         'tanggal_mulai' => 'date',
         'tanggal_kematian' => 'date',
         'tanggal_surat' => 'date',
+        'approved_at' => 'datetime',
     ];
 
+    /**
+     * Relationship dengan User yang membuat SKPP
+     */
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
+    /**
+     * Relationship dengan Admin yang approve/reject SKPP
+     */
+    public function approver()
+    {
+        return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    /**
+     * Get next nomor urut for the year
+     */
     public static function getNextNomorUrut($year)
     {
         $lastSkpp = self::where('tahun_surat', $year)
@@ -90,5 +108,33 @@ class Skpp extends Model
             ->first();
 
         return $lastSkpp ? $lastSkpp->nomor_urut + 1 : 1;
+    }
+
+    /**
+     * Scope untuk filter berdasarkan status
+     */
+    public function scopeStatus($query, $status)
+    {
+        return $query->where('status', $status);
+    }
+
+    /**
+     * Scope untuk filter berdasarkan tipe
+     */
+    public function scopeType($query, $type)
+    {
+        return $query->where('tipe', $type);
+    }
+
+    /**
+     * Scope untuk pencarian
+     */
+    public function scopeSearch($query, $search)
+    {
+        return $query->where(function ($q) use ($search) {
+            $q->where('nama', 'like', "%{$search}%")
+                ->orWhere('nip', 'like', "%{$search}%")
+                ->orWhere('nomor_urut', 'like', "%{$search}%");
+        });
     }
 }

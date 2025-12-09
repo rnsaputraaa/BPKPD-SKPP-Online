@@ -46,7 +46,7 @@
                 <div>
                     <p class="text-gray-500 text-sm">Disetujui</p>
                     <h3 class="text-3xl font-bold text-gray-800 mt-1">
-                        {{ \App\Models\Skpp::where('user_id', auth()->id())->where('status', 'printed')->count() }}</h3>
+                        {{ \App\Models\Skpp::where('user_id', auth()->id())->where('status', 'disetujui')->count() }}</h3>
                 </div>
                 <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
                     <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -69,7 +69,7 @@
         @php
             $recentSkpps = \App\Models\Skpp::where('user_id', auth()->id())
                 ->latest()
-                ->take(5)
+                ->take(3)
                 ->get();
         @endphp
 
@@ -129,10 +129,15 @@
                                             class="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800 mb-2">
                                             Diproses
                                         </span>
-                                    @else
+                                    @elseif($skpp->status == 'disetujui')
                                         <span
                                             class="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 mb-2">
                                             Disetujui
+                                        </span>
+                                    @else
+                                        <span
+                                            class="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800 mb-2">
+                                            Ditolak
                                         </span>
                                     @endif
                                     <p class="text-sm text-gray-600 mt-2">
@@ -141,20 +146,21 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                         </svg>
-                                        {{ $skpp->created_at->format('d M Y') }}
+                                        {{ $skpp->created_at->locale('id')->translatedFormat('d F Y') }}
                                     </p>
                                 </div>
                             </div>
 
                             <div class="flex items-center space-x-2 ml-6">
                                 <a href="{{ route('skpp.show', $skpp) }}"
-                                    class="p-3 text-green-600 hover:text-green-900 rounded transition" title="Lihat Detail">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    class="inline-flex items-center px-4 py-2 bg-green-700 text-white text-xs font-medium rounded-lg hover:bg-green-800 transition">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                     </svg>
+                                    Detail
                                 </a>
                             </div>
                         </div>
