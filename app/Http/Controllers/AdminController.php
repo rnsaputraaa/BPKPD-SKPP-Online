@@ -100,13 +100,27 @@ class AdminController extends Controller
             $query->where('tipe', $request->tipe);
         }
 
-        // Pencarian
         if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('nama', 'like', "%{$search}%")
-                    ->orWhere('nip', 'like', "%{$search}%")
-                    ->orWhere('nomor_urut', 'like', "%{$search}%");
+            $search = trim($request->search);
+
+            $keywords = explode(' ', $search);
+
+            $query->where(function ($q) use ($keywords) {
+                foreach ($keywords as $word) {
+                    $q->where(function ($sub) use ($word) {
+                        if (ctype_digit($word)) {
+                            $sub->where('nomor_urut', intval($word));
+                        }
+
+                        $sub->orWhere('nama', 'like', "%{$word}%")
+                            ->orWhere('nip', 'like', "%{$word}%");
+
+                        $sub->orWhereHas('user', function ($u) use ($word) {
+                            $u->where('nama', 'like', "%{$word}%")
+                                ->orWhere('nip', 'like', "%{$word}%");
+                        });
+                    });
+                }
             });
         }
 
