@@ -26,88 +26,139 @@
         </div>
     @else
         <div class="bg-white rounded shadow overflow-hidden">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-green-700">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">No. Urut
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Tipe</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Nama</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">NIP</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Status
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Tanggal
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider"></th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    @foreach ($skpps as $skpp)
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                {{ str_pad($skpp->nomor_urut, 3, '0', STR_PAD_LEFT) }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                @if ($skpp->tipe == 'pensiun')
-                                    <span
-                                        class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                        Pensiun
-                                    </span>
-                                @elseif($skpp->tipe == 'meninggal_dunia')
-                                    <span
-                                        class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                                        Meninggal Dunia
-                                    </span>
-                                @else
-                                    <span
-                                        class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
-                                        Mutasi
-                                    </span>
-                                @endif
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {{ $skpp->nama }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                {{ $skpp->nip }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                @if ($skpp->status == 'diproses')
-                                    <span
-                                        class="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800 mb-2">
-                                        Diproses
-                                    </span>
-                                @elseif($skpp->status == 'disetujui')
-                                    <span
-                                        class="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 mb-2">
-                                        Disetujui
-                                    </span>
-                                @else
-                                    <span
-                                        class="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800 mb-2">
-                                        Ditolak
-                                    </span>
-                                @endif
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                {{ $skpp->created_at->format('d/m/Y') }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                <a href="{{ route('skpp.show', $skpp) }}"
-                                    class="inline-flex items-center px-4 py-2 bg-green-700 text-white text-xs font-medium rounded-lg hover:bg-green-800 transition">
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                    </svg>
-                                    Detail
-                                </a>
-                            </td>
+            <div class="hidden md:block overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-green-700">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">No. Urut
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Tipe
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Nama
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">NIP</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Status
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Tanggal
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider"></th>
                         </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                    </thead>
+
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        @foreach ($skpps as $skpp)
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    {{ str_pad($skpp->nomor_urut, 3, '0', STR_PAD_LEFT) }}
+                                </td>
+
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    @if ($skpp->tipe == 'pensiun')
+                                        <span
+                                            class="px-3 py-1 inline-flex text-xs font-semibold rounded-full bg-blue-100 text-blue-800">Pensiun</span>
+                                    @elseif($skpp->tipe == 'meninggal_dunia')
+                                        <span
+                                            class="px-3 py-1 inline-flex text-xs font-semibold rounded-full bg-gray-100 text-gray-800">Meninggal
+                                            Dunia</span>
+                                    @else
+                                        <span
+                                            class="px-3 py-1 inline-flex text-xs font-semibold rounded-full bg-purple-100 text-purple-800">Mutasi</span>
+                                    @endif
+                                </td>
+
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">{{ $skpp->nama }}</td>
+
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">{{ $skpp->nip }}</td>
+
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    @if ($skpp->status == 'diproses')
+                                        <span
+                                            class="px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Diproses</span>
+                                    @elseif($skpp->status == 'disetujui')
+                                        <span
+                                            class="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Disetujui</span>
+                                    @else
+                                        <span
+                                            class="px-3 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Ditolak</span>
+                                    @endif
+                                </td>
+
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                    {{ $skpp->created_at->format('d/m/Y') }}
+                                </td>
+
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                    <a href="{{ route('skpp.show', $skpp) }}"
+                                        class="inline-flex items-center px-4 py-2 bg-green-700 text-white text-xs rounded-lg hover:bg-green-800 transition">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                        </svg>
+                                        Detail
+                                    </a>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="md:hidden p-3 space-y-4">
+                @foreach ($skpps as $skpp)
+                    <div class="border rounded-lg shadow-sm p-4 bg-white">
+
+                        <div class="flex justify-between items-center mb-2">
+                            <h2 class="font-bold text-gray-800">
+                                No. {{ str_pad($skpp->nomor_urut, 3, '0', STR_PAD_LEFT) }}
+                            </h2>
+
+                            @if ($skpp->status == 'diproses')
+                                <span
+                                    class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Diproses</span>
+                            @elseif($skpp->status == 'disetujui')
+                                <span
+                                    class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Disetujui</span>
+                            @else
+                                <span
+                                    class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Ditolak</span>
+                            @endif
+                        </div>
+
+                        <p><span class="font-semibold">Nama:</span> {{ $skpp->nama }}</p>
+                        <p><span class="font-semibold">NIP:</span> {{ $skpp->nip }}</p>
+
+                        <p class="mt-1">
+                            <span class="font-semibold">Tipe:</span>
+
+                            @if ($skpp->tipe == 'pensiun')
+                                <span
+                                    class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">Pensiun</span>
+                            @elseif($skpp->tipe == 'meninggal_dunia')
+                                <span
+                                    class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">Meninggal
+                                    Dunia</span>
+                            @else
+                                <span
+                                    class="px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">Mutasi</span>
+                            @endif
+                        </p>
+
+                        <p class="mt-2 text-gray-600 text-sm">
+                            <span class="font-semibold">Tanggal:</span>
+                            {{ $skpp->created_at->format('d/m/Y') }}
+                        </p>
+
+                        <div class="mt-3">
+                            <a href="{{ route('skpp.show', $skpp) }}"
+                                class="inline-block w-full text-center px-4 py-2 bg-green-700 text-white text-xs rounded-lg hover:bg-green-800 transition">
+                                Detail
+                            </a>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
         </div>
     @endif
 @endsection

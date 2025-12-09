@@ -28,7 +28,7 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div class="bg-white rounded shadow-sm border border-gray-100 p-6">
             <div class="flex items-center justify-between mb-3">
                 <p class="text-sm font-medium text-gray-600">Status Pengajuan</p>
                 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -66,7 +66,7 @@
             @endif
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div class="bg-white rounded shadow-sm border border-gray-100 p-6">
             <div class="flex items-center justify-between mb-3">
                 <p class="text-sm font-medium text-gray-600">Diajukan Oleh</p>
                 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -82,7 +82,7 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div class="bg-white rounded shadow-sm border border-gray-100 p-6">
             <div class="flex items-center justify-between mb-3">
                 <p class="text-sm font-medium text-gray-600">Tanggal Pengajuan</p>
                 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -95,34 +95,30 @@
     </div>
 
     @if ($skpp->status == 'diproses')
-        <div class="bg-linear-to-r from-blue-50 to-purple-50 rounded-xl shadow-sm border border-blue-100 p-6 mb-6">
-            <div class="flex items-center justify-between">
+        <div class="bg-linear-to-r from-blue-50 to-purple-50 rounded shadow-sm border border-blue-100 p-6 mb-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+
                 <div>
                     <h2 class="text-xl font-bold text-gray-900 mb-1">Keputusan Pengajuan</h2>
                     <p class="text-sm text-gray-600">Setujui atau tolak pengajuan SKPP ini</p>
                 </div>
-                <div class="flex gap-3">
+
+                <div class="flex flex-col md:flex-row w-full md:w-auto gap-3">
+
                     <form action="{{ route('admin.skpp.approve', $skpp) }}" method="POST"
-                        onsubmit="return confirm('Apakah Anda yakin ingin menyetujui SKPP ini?')">
+                        onsubmit="return confirm('Konfirmasi menyetujui SKPP ini?')" class="w-full md:w-auto">
                         @csrf
                         <button type="submit"
-                            class="inline-flex items-center px-6 py-3 bg-green-600 text-white text-sm font-semibold rounded hover:bg-green-700 transition shadow-md">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+                            class="w-full md:w-auto inline-flex items-center justify-center px-6 py-3 bg-green-600 text-white text-sm font-semibold rounded hover:bg-green-700 transition shadow-md">
                             Setujui SKPP
                         </button>
                     </form>
 
                     <button onclick="showRejectModal()"
-                        class="inline-flex items-center px-6 py-3 bg-red-600 text-white text-sm font-semibold rounded hover:bg-red-700 transition shadow-md">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
+                        class="w-full md:w-auto inline-flex items-center justify-center px-6 py-3 bg-red-600 text-white text-sm font-semibold rounded hover:bg-red-700 transition shadow-md">
                         Tolak SKPP
                     </button>
+
                 </div>
             </div>
         </div>
@@ -437,6 +433,7 @@
             </form>
         </div>
     </div>
+
     <script>
         function showRejectModal() {
             const modal = document.getElementById('rejectModal');
