@@ -12,6 +12,12 @@
         body {
             font-family: 'Inter', sans-serif;
         }
+
+        @media (max-width: 480px) {
+            .placeholder-mobile::placeholder {
+                font-size: 12px;
+            }
+        }
     </style>
 
     @vite('resources/css/app.css')

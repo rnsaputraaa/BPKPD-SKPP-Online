@@ -135,10 +135,10 @@
                         <div>
                             <label class="block text-sm font-medium text-green-700 mb-2">SK Dari <span
                                     class="text-red-500">*</span></label>
-                            <input type="text" name="sk_dari"
-                                placeholder="Contoh: BUPATI PAMEKASAN (wajib huruf kapital)"
-                                class="w-full px-4 py-2 rounded focus:ring-2 focus:ring-green-300 focus:border-green-400"
+                            <input type="text" name="sk_dari" placeholder="Contoh: BUPATI PAMEKASAN"
+                                class="placeholder-mobile w-full px-4 py-2 rounded focus:ring-2 focus:ring-green-300 focus:border-green-400"
                                 required>
+                            <p class="text-xs text-gray-500 mt-1">Ketentuan: Wajib Huruf Kapital</p>
                         </div>
 
                         <div>
@@ -188,8 +188,8 @@
                     <div>
                         <label class="block text-sm font-medium text-green-700 mb-2">Gaji Dibayarkan Sampai Bulan <span
                                 class="text-red-500">*</span></label>
-                        <input type="text" name="gaji_sampai_bulan" placeholder="Contoh: Desember 2024"
-                            class="w-full px-4 py-2 rounded focus:ring-2 focus:ring-green-300 focus:border-green-400"
+                        <input type="text" name="gaji_sampai_bulan" placeholder="Contoh: Desember 2025"
+                            class="placeholder-mobile w-full px-4 py-2 rounded focus:ring-2 focus:ring-green-300 focus:border-green-400"
                             required>
                     </div>
                 </div>
@@ -413,7 +413,7 @@
                                         <label class="block text-sm font-medium text-green-700 mb-2">Keterangan</label>
                                         <input type="text" name="ket{{ $i }}"
                                             placeholder="Contoh: Istri, Anak ke-1"
-                                            class="w-full px-4 py-2 rounded focus:ring-2 focus:ring-green-300 focus:border-green-400">
+                                            class="placeholder-mobile w-full px-4 py-2 rounded focus:ring-2 focus:ring-green-300 focus:border-green-400">
                                     </div>
                                 </div>
                             </div>
