@@ -217,19 +217,11 @@ class AdminController extends Controller
                 default => null,
             };
 
-            if (!$templateFile) {
-                throw new \Exception('Tipe SKPP tidak valid: ' . $skpp->tipe);
+            if (!$templateFile || !file_exists($templateFile)) {
+                throw new \Exception('Template file tidak ditemukan: ' . $templateFile);
             }
 
-            if (!file_exists($templateFile)) {
-                throw new \Exception('Template file tidak ditemukan. Pastikan file template ada di: ' . $templateFile);
-            }
-
-            if (!class_exists('PhpOffice\PhpWord\TemplateProcessor')) {
-                throw new \Exception('PhpWord library tidak terinstall. Jalankan: composer require phpoffice/phpword');
-            }
-
-            $template = new TemplateProcessor($templateFile);
+            $template = new \PhpOffice\PhpWord\TemplateProcessor($templateFile);
 
             $template->setValue('nomor_urut', str_pad($skpp->nomor_urut, 3, '0', STR_PAD_LEFT));
             $template->setValue('kode_wilayah', $skpp->kode_wilayah ?? '');
@@ -237,6 +229,7 @@ class AdminController extends Controller
             $template->setValue('nip', $skpp->nip ?? '');
             $template->setValue('nama', $skpp->nama ?? '');
             $template->setValue('taggal_lahir', $skpp->tanggal_lahir ? $skpp->tanggal_lahir->format('d-m-Y') : '-');
+
             $template->setValue('golongan', $skpp->golongan ?? '');
             $template->setValue('jabatan', $skpp->jabatan ?? '');
             $template->setValue('unit_kerja', $skpp->unit_kerja ?? '');
@@ -315,21 +308,37 @@ class AdminController extends Controller
             $template->setValue('ket_hut', $skpp->ket_hut ?? '');
             $template->setValue('tanggal_surat', $skpp->tanggal_surat ? Carbon::parse($skpp->tanggal_surat)->isoFormat('D MMMM Y') : '-');
 
-            $fileName = "SKPP_" . preg_replace('/[^A-Za-z0-9_\-]/', '_', $skpp->nama) . "_{$skpp->nomor_urut}_" . time() . ".docx";
-            $filePath = storage_path("app/public/{$fileName}");
+            $tempDocxName = 'skpp_' . $skpp->id . '_' . time() . '.docx';
+            $tempDocxPath = storage_path('app/temp/' . $tempDocxName);
 
-            $directory = storage_path('app/public');
-            if (!file_exists($directory)) {
-                mkdir($directory, 0755, true);
+            if (!file_exists(storage_path('app/temp'))) {
+                mkdir(storage_path('app/temp'), 0777, true);
             }
 
-            $template->saveAs($filePath);
+            $template->saveAs($tempDocxPath);
 
-            if (!file_exists($filePath)) {
-                throw new \Exception('Gagal membuat file DOCX. Periksa permission folder storage/app/public');
+            $pdfFolder = storage_path('app/pdf');
+            if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+                $soffice = '"C:\Program Files\LibreOffice\program\soffice.exe"';
+            } else {
+                $soffice = 'libreoffice';
             }
 
-            return response()->download($filePath, $fileName)->deleteFileAfterSend(true);
+            $command = $soffice . ' --headless --convert-to pdf "' . $tempDocxPath . '" --outdir "' . $pdfFolder . '"';
+            exec($command, $output, $result);
+
+            if ($result !== 0) {
+                throw new \Exception("Gagal convert PDF. Pastikan LibreOffice terinstall & PATH sudah benar.");
+            }
+
+            $pdfPath = $pdfFolder . '/' . str_replace('.docx', '.pdf', $tempDocxName);
+
+            if (file_exists($tempDocxPath)) {
+                unlink($tempDocxPath);
+            }
+
+            return response()->download($pdfPath, 'SKPP_' . $skpp->nama . '.pdf')
+                ->deleteFileAfterSend(true);
         } catch (\Exception $e) {
             Log::error('Error printing SKPP: ' . $e->getMessage(), [
                 'skpp_id' => $skpp->id,
