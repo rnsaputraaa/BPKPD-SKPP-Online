@@ -13,7 +13,7 @@ class AdminSeeder extends Seeder
         User::create([
             'nama' => 'Administrator',
             'nip' => 'bpkpd',
-            'password' => Hash::make('bpkpdsukses123'),
+            'password' => Hash::make('bpkpd24434'),
             'role' => 'admin',
         ]);
     }
