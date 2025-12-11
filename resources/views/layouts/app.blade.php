@@ -44,10 +44,6 @@
                         <p class="text-sm mt-1">BPKPD PAMEKASAN</p>
                     </div>
                 </div>
-
-                <button class="lg:hidden text-white text-2xl" onclick="toggleSidebar()">
-                    &times;
-                </button>
             </div>
 
             <nav class="flex-1 px-4 py-6 space-y-2 bg-white text-green-700">
