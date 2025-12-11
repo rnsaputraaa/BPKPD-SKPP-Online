@@ -38,7 +38,7 @@
                 <label for="username" class="block text-sm font-medium text-gray-700 mb-2">Username</label>
                 <input type="text" id="username" name="username" value="{{ old('username') }}"
                     class="w-full px-4 py-3 border rounded focus:ring-2 focus:ring-gray-500 focus:border-transparent outline-none transition @error('username') border-red-500 @enderror"
-                    placeholder="Masukkan username" required>
+                    placeholder="Masukkan username" autocomplete="off" required>
                 @error('username')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
@@ -46,9 +46,30 @@
 
             <div class="mb-6">
                 <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
-                <input type="password" id="password" name="password"
-                    class="w-full px-4 py-3 border rounded focus:ring-2 focus:ring-gray-500 focus:border-transparent outline-none transition @error('password') border-red-500 @enderror"
-                    placeholder="Masukkan password" required>
+
+                <div class="relative">
+                    <input type="password" id="password" name="password"
+                        class="w-full px-4 py-3 pr-12 border rounded focus:ring-2 focus:ring-gray-500 focus:border-transparent outline-none transition @error('password') border-red-500 @enderror"
+                        placeholder="Masukkan password" required>
+
+                    <button type="button" onclick="togglePassword2()"
+                        class="absolute inset-y-0 right-0 flex items-center pr-3 pl-3 border-l text-gray-600 hover:text-gray-700">
+                        <svg id="showIcon2" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+
+                        <svg id="hideIcon2" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a9.965 9.965 0 012.132-3.568M6.228 6.228A9.956 9.956 0 0112 5c4.477 0 8.268 2.943 9.542 7a10.024 10.024 0 01-4.132 5.568M4.5 4.5l15 15" />
+                        </svg>
+                    </button>
+                </div>
+
                 @error('password')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
@@ -67,6 +88,24 @@
             </p>
         </div>
     </div>
+
+    <script>
+        function togglePassword2() {
+            const input = document.getElementById("password");
+            const showIcon = document.getElementById("showIcon2");
+            const hideIcon = document.getElementById("hideIcon2");
+
+            if (input.type === "password") {
+                input.type = "text";
+                showIcon.classList.add("hidden");
+                hideIcon.classList.remove("hidden");
+            } else {
+                input.type = "password";
+                hideIcon.classList.add("hidden");
+                showIcon.classList.remove("hidden");
+            }
+        }
+    </script>
 </body>
 
 </html>
