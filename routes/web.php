@@ -31,6 +31,7 @@ Route::middleware(['auth', 'user', 'prevent-back-history'])->group(function () {
 Route::middleware(['auth', 'admin', 'prevent-back-history'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/skpp', [AdminController::class, 'skppList'])->name('admin.skpp.index');
+    Route::get('/admin/pegawai', [AdminController::class, 'pegawaiList'])->name('admin.pegawai');
     Route::get('/skpp/{skpp}', [AdminController::class, 'skppShow'])->name('admin.skpp.show');
     Route::post('/skpp/{skpp}/approve', [AdminController::class, 'approve'])->name('admin.skpp.approve');
     Route::post('/skpp/{skpp}/reject', [AdminController::class, 'reject'])->name('admin.skpp.reject');

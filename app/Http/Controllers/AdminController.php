@@ -133,6 +133,14 @@ class AdminController extends Controller
         return view('admin.skpp.index', compact('skpps'));
     }
 
+    public function pegawaiList()
+    {
+        $pegawai = User::where('role', 'user')->paginate(15);
+
+        return view('admin.pegawai', compact('pegawai'));
+    }
+
+
     public function skppShow(Skpp $skpp)
     {
         $skpp->load('user');
