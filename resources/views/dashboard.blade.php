@@ -3,9 +3,22 @@
 @section('title', 'Dashboard')
 
 @section('content')
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-800">Dashboard</h1>
-        <p class="text-gray-600 mt-2">Selamat datang, {{ auth()->user()->nama }}</p>
+    <div class="mb-8 flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">Dashboard</h1>
+            <p class="text-gray-600 mt-1">Selamat datang, {{ auth()->user()->nama }}</p>
+        </div>
+
+        <div class="relative">
+            <a href="{{ route('user.edit-profile') }}"
+                class="px-4 py-2 rounded-full bg-green-700 hover:bg-green-800 text-white flex items-center space-x-2">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m10-7a4 4 0 11-8 0 4 4 0 018 0zm6 4v6m-6 0v-6m0 0H4" />
+                </svg>
+                <span>Edit Profil</span>
+            </a>
+        </div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">

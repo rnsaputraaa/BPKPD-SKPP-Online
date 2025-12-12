@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SkppController;
 use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UserController;
 
 Route::middleware('guest')->group(function () {
     Route::get('/', function () {
@@ -21,6 +22,8 @@ Route::middleware('guest')->group(function () {
 Route::middleware(['auth', 'user', 'prevent-back-history'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/dashboard', [SkppController::class, 'dashboard'])->name('dashboard');
+    Route::get('/user/profile/edit', [UserController::class, 'editProfile'])->name('user.edit-profile');
+    Route::put('/user/profile/update', [UserController::class, 'updateProfile'])->name('user.update-profile');
     Route::get('/skpp', [SkppController::class, 'index'])->name('skpp.index');
     Route::get('/skpp/create', [SkppController::class, 'create'])->name('skpp.create');
     Route::post('/skpp', [SkppController::class, 'store'])->name('skpp.store');
