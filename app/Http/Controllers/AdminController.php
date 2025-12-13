@@ -133,11 +133,26 @@ class AdminController extends Controller
         return view('admin.skpp.index', compact('skpps'));
     }
 
-    public function pegawaiList()
+    public function pegawaiList(Request $request)
     {
-        $pegawai = User::where('role', 'user')->paginate(15);
+        $pegawai = User::where('role', 'user');
 
+        if ($request->filled('search')) {
+            $pegawai->where(function ($query) use ($request) {
+                $query->where('nama', 'like', '%' . $request->search . '%')
+                    ->orWhere('nip', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        $pegawai = $pegawai->latest()->paginate(15);
+        $pegawai->appends($request->only('search'));
         return view('admin.pegawai', compact('pegawai'));
+    }
+
+    public function destroy($id)
+    {
+        User::findOrFail($id)->delete();
+        return back()->with('success', 'Data pegawai berhasil dihapus');
     }
 
 
