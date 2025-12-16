@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
-@section('title', 'Status Pengajuan')
+@section('title', 'Riwayat Pengajuan')
 
 @section('content')
     <div class="mb-8 flex justify-between items-center">
         <div>
-            <h1 class="text-3xl font-bold text-gray-800">Status Pengajuan</h1>
-            <p class="text-gray-600 mt-2">Kelola dan lihat semua SKPP Anda</p>
+            <h1 class="text-3xl font-bold text-gray-800">Riwayat Pengajuan</h1>
+            <p class="text-gray-600 mt-2">Kelola dan lihat semua status pengajuan SKPP Anda</p>
         </div>
     </div>
 
