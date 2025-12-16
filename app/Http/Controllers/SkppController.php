@@ -36,8 +36,6 @@ class SkppController extends Controller
 
         $validated = $request->validate([
             'tipe' => 'required|in:pensiun,meninggal_dunia,mutasi',
-            'nip' => 'required',
-            'nama' => 'required',
             'tanggal_lahir' => 'required|date',
             'golongan' => 'required',
             'jabatan' => 'required',
@@ -112,6 +110,8 @@ class SkppController extends Controller
 
         $data = array_merge($request->all(), [
             'user_id' => request()->user()->id,
+            'nip' => request()->user()->nip,
+            'nama' => request()->user()->nama,
             'nomor_urut' => $nomor_urut,
             'tahun_surat' => $year,
             'tanggal_surat' => now(),
