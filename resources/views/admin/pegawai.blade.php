@@ -35,13 +35,6 @@
                 </form>
             </div>
 
-            <div class="px-6 py-4 border-b border-gray-300">
-                <div class="bg-gray-700 rounded border border-gray-200 p-4 w-48">
-                    <p class="text-xs text-white">Total Pegawai Terdaftar</p>
-                    <p class="text-2xl font-bold text-white">{{ $pegawai->total() }}</p>
-                </div>
-            </div>
-
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
