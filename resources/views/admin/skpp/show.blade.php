@@ -6,7 +6,7 @@
     <div class="mb-8">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900">Detail SKPP</h1>
+                <h1 class="text-3xl font-bold text-gray-800">Detail SKPP</h1>
                 <p class="text-gray-600 mt-1">
                     Nomor Surat: <span
                         class="font-semibold">{{ str_pad($skpp->nomor_urut, 3, '0', STR_PAD_LEFT) }}/{{ $skpp->kode_wilayah }}/{{ $skpp->tahun_surat }}</span>
@@ -23,6 +23,16 @@
                         Cetak Dokumen
                     </a>
                 @endif
+                <a href="{{ route('admin.skpp.preview', $skpp) }}" target="_blank"
+                    class="inline-flex items-center px-6 py-3 bg-blue-600 text-white text-sm font-semibold rounded hover:bg-blue-700 transition shadow-md">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    Preview SKPP
+                </a>
             </div>
         </div>
     </div>

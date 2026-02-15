@@ -45,31 +45,6 @@ class AuthController extends Controller
         ])->onlyInput('nip');
     }
 
-    public function showRegister()
-    {
-        return view('auth.register');
-    }
-
-    public function register(Request $request)
-    {
-        $validated = $request->validate([
-            'nama' => 'required|string|max:255',
-            'nip' => 'required|string|unique:users,nip',
-            'password' => 'required|string|min:6|confirmed',
-        ]);
-
-        $user = User::create([
-            'nama' => $validated['nama'],
-            'nip' => $validated['nip'],
-            'password' => Hash::make($validated['password']),
-            'role' => 'user',
-        ]);
-
-        Auth::login($user);
-
-        return redirect('/dashboard');
-    }
-
     public function logout(Request $request)
     {
         Auth::logout();

@@ -23,10 +23,10 @@
     </div>
 
     <div
-        class="relative bg-gray-100 rounded-2xl w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 auto-rows-fr border border-white/30 overflow-hidden">
+        class="relative bg-gray-100 rounded w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 auto-rows-fr border border-white/30 overflow-hidden">
 
         <div class="hidden md:flex items-center justify-center bg-gray-100 p-6 md:rounded-l-2xl">
-            <img src="img/bg.jpg" alt="Background" class="rounded-xl shadow-lg object-cover w-full h-full">
+            <img src="img/bg.jpg" alt="Background" class="rounded shadow-lg object-cover w-full h-full">
         </div>
 
         <div class="p-10">
@@ -89,13 +89,6 @@
                 </button>
             </form>
 
-            <div class="mt-6 text-center">
-                <p class="text-gray-600">Belum punya akun?
-                    <a href="{{ route('register') }}" class="text-green-600 font-semibold hover:underline">Daftar di
-                        sini</a>
-                </p>
-            </div>
-
             <div class="relative my-8">
                 <div class="absolute inset-0 flex items-center">
                     <div class="w-full border-t border-gray-500"></div>
@@ -129,7 +122,6 @@
             }
         }
     </script>
-
 </body>
 
 </html>

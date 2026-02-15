@@ -16,7 +16,6 @@
 </head>
 
 <body class="bg-gray-100">
-
     <div id="sidebarOverlay" class="fixed inset-0 bg-gray-100 bg-opacity-40 z-30 hidden lg:hidden"
         onclick="toggleSidebar()"></div>
 
@@ -55,8 +54,8 @@
                     <span>Kelola Pengajuan</span>
                 </a>
 
-                <a href="{{ route('admin.pegawai') }}"
-                    class="flex items-center px-4 py-3 rounded hover:bg-gray-300 transition {{ request()->routeIs('admin.pegawai') ? 'bg-gray-300' : '' }}">
+                <a href="{{ route('admin.pegawai.index') }}"
+                    class="flex items-center px-4 py-3 rounded hover:bg-gray-300 transition {{ request()->routeIs('admin.pegawai.index') ? 'bg-gray-300' : '' }}">
                     <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -84,30 +83,14 @@
                     </form>
                 </div>
             </div>
-
         </aside>
 
         <main class="flex-1 overflow-y-auto">
-
             <button class="lg:hidden m-4 text-3xl text-gray-700" onclick="toggleSidebar()">
                 ☰
             </button>
 
             <div class="p-8">
-                @if (session('success'))
-                    <div class="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative"
-                        role="alert">
-                        <span class="block sm:inline">{{ session('success') }}</span>
-                    </div>
-                @endif
-
-                @if (session('error'))
-                    <div class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
-                        role="alert">
-                        <span class="block sm:inline">{{ session('error') }}</span>
-                    </div>
-                @endif
-
                 @yield('content')
             </div>
         </main>
@@ -129,7 +112,6 @@
             }
         }
     </script>
-
 </body>
 
 </html>

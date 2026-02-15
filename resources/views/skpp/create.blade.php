@@ -155,29 +155,7 @@
                                     <option value="PENCATATAN SIPIL">PENCATATAN SIPIL</option>
                                     <option value="KEPALA DESA">KEPALA DESA</option>
                                     <option value="KEMENTERIAN PERTANIAN">KEMENTERIAN PERTANIAN</option>
-                                    <option value="lainnya">Lainnya...</option>
                                 </select>
-
-                                <input type="text" name="sk_dari" id="sk_dari_input"
-                                    class="hidden w-full px-4 py-2 rounded focus:ring-2 focus:ring-green-300 focus:border-green-400"
-                                    placeholder="Ketik Penerbit SK...">
-
-                                <div id="select_arrow"
-                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-700">
-                                    <svg class="fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                        <path
-                                            d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                                    </svg>
-                                </div>
-
-                                <button type="button" id="back_to_select"
-                                    class="hidden absolute inset-y-0 right-0 items-center px-3" onclick="backToSelect()"
-                                    title="Kembali ke pilihan">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M4 6h16M4 12h16M4 18h16" />
-                                    </svg>
-                                </button>
                             </div>
                         </div>
 
@@ -493,71 +471,12 @@
 
     <script>
         function toggleSkDariMode(selectElement) {
-            const inputElement = document.getElementById('sk_dari_input');
             const selectArrow = document.getElementById('select_arrow');
-            const backButton = document.getElementById('back_to_select');
-
-            if (selectElement.value === 'lainnya') {
-                selectElement.classList.add('hidden');
-                selectElement.removeAttribute('name');
-                selectElement.removeAttribute('required');
-
-                inputElement.classList.remove('hidden');
-                inputElement.setAttribute('name', 'sk_dari');
-                inputElement.setAttribute('required', 'required');
-                inputElement.value = '';
-
-                selectArrow.classList.add('hidden');
-                backButton.classList.remove('hidden');
-
-                setTimeout(() => inputElement.focus(), 100);
-            }
-        }
-
-        function backToSelect() {
-            const selectElement = document.getElementById('sk_dari_select');
-            const inputElement = document.getElementById('sk_dari_input');
-            const selectArrow = document.getElementById('select_arrow');
-            const backButton = document.getElementById('back_to_select');
-
-            inputElement.classList.add('hidden');
-            inputElement.removeAttribute('name');
-            inputElement.removeAttribute('required');
-            inputElement.value = '';
-
-            selectElement.classList.remove('hidden');
-            selectElement.setAttribute('name', 'sk_dari');
-            selectElement.setAttribute('required', 'required');
-            selectElement.value = '';
-
-            backButton.classList.add('hidden');
-            selectArrow.classList.remove('hidden');
         }
 
         document.addEventListener('DOMContentLoaded', function() {
             const selectElement = document.getElementById('sk_dari_select');
-            const inputElement = document.getElementById('sk_dari_input');
             const oldValue = '{{ old('sk_dari') }}';
-
-            if (oldValue) {
-                const optionExists = Array.from(selectElement.options).some(opt => opt.value === oldValue);
-
-                if (!optionExists && oldValue !== '') {
-                    selectElement.classList.add('hidden');
-                    selectElement.removeAttribute('name');
-                    selectElement.removeAttribute('required');
-
-                    inputElement.classList.remove('hidden');
-                    inputElement.setAttribute('name', 'sk_dari');
-                    inputElement.setAttribute('required', 'required');
-                    inputElement.value = oldValue;
-
-                    document.getElementById('select_arrow').classList.add('hidden');
-                    document.getElementById('back_to_select').classList.remove('hidden');
-                } else {
-                    selectElement.value = oldValue;
-                }
-            }
         });
 
         document.addEventListener('DOMContentLoaded', function() {
